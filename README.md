@@ -27,7 +27,7 @@ Extra host specific settings and files can be specified in the host_vars.
 - `force` - Set all force variables to `true`. Defaults to `false`.
 - `force_bash_completion` - Force installing bash completion files. Defaults to `false`.
 - `force_bash` - Force installing all things bash related. Defaults to `false`.
-- `force_neovim` - Force git to redownload the source. Defaults to `false`.
+- `force_neovim` - Force install the neovim config. Defaults to `false`.
 - `force_vim_plugins` - Force git to redownload the source. Defaults to `false`.
 
 Additionally:
