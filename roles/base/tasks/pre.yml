@@ -1,0 +1,63 @@
+---
+
+- name: Install required packages
+  tags: bash,bash_completion,python
+  package:
+    name:
+      - bash-completion
+      - dnsutils
+      - neovim
+      - net-tools
+      - screen
+      - python3-pip
+      - pipx
+      - python3-argcomplete
+    state: latest
+
+- name: Upgrade with pipx
+  community.general.pipx:
+    state: upgrade_all
+
+- name: Install required python packages
+  tags: python
+  community.general.pipx:
+    name: "{{ item }}"
+    state: install
+  environment:
+    PIPX_HOME: /opt/pipx
+    PIPX_BIN_DIR: /usr/local/bin
+  loop:
+    - ntfyr
+
+- name: Ensure ntfyr config dir exists
+  tags: alert
+  file:
+    path: /etc/ntfyr
+    state: directory
+
+- name: Install ntfyr config
+  tags: alert
+  copy:
+    src: files/ntfyr_config.ini
+    dest: /etc/ntfyr/config.ini
+    decrypt: yes
+
+- name: Remove argcomplete bash completion file if forcing reinstall
+  tags: bash,bash_completion,python
+  file:
+    path: /etc/bash_completion.d/python-argcomplete
+    state: absent
+  when: force_bash_completion or force_bash
+
+- name: Install argcomplete bash completion
+  tags: bash,bash_completion,python
+  shell:
+    cmd: "activate-global-python-argcomplete"
+    creates: /etc/bash_completion.d/python-argcomplete
+
+- name: Download random-num
+  get_url:
+    url: https://gist.github.com/haxwithaxe/70ba58d15a449d4de33b2366c2759b6a/raw/4f734f58fe26f45aece64203d355f0a891834ad2/random-num
+    dest: /usr/local/bin/random-num
+    mode: '0755'
+

@@ -1,0 +1,66 @@
+---
+
+- name: Ensure important directories exist
+  tags: always
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ user.home_dir }}/.config"
+    - "{{ user.home_dir }}/.local"
+    - "{{ user.home_dir }}/.psrc.d"
+    - "{{ user.home_dir }}/.bash_aliases.d"
+    - "{{ user.home_dir }}/.bash_completion.d"
+    - "{{ user.home_dir }}/.bashrc.d"
+    - "{{ user.home_dir }}/.config/nvim"
+    - "{{ user.home_dir }}/.vim"
+
+- name: Install random dotfiles
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ user.home_dir }}/.{{ item }}"
+  loop:
+    - pylintrc
+    - gitconfig
+
+- name: Install bashrc files
+  tags: bash,bashrc,alert,host_specific,install
+  include_tasks: 
+    file: "tasks/bashrc.yml"
+    apply:
+      tags: [ bash, bashrc ]
+
+- name: Install bash_aliases files
+  tags: bash,bash_aliases,host_specific,install
+  include_tasks: 
+    file: "tasks/bash_aliases.yml"
+    apply:
+      tags: [ bash, bash_aliases ]
+
+- name: Install bash_completion files
+  tags: bash,bash_completion,host_specific,install
+  include_tasks: 
+    file: "tasks/bash_completion.yml"
+    apply:
+      tags: [ bash, bash_completion ]
+
+- name: Install psrc files
+  tags: bash,host_specific,install,psrc,prepare
+  include_tasks: 
+    file: "tasks/psrc.yml"
+    apply:
+      tags: [ bash, psrc ]
+
+- name: Install profile files
+  tags: bash,host_specific,install,profile
+  include_tasks: 
+    file: "tasks/profile.yml"
+    apply:
+      tags: [ bash, profile ]
+
+- name: Install vim config
+  tags: host_specific,install,neovim,plugins,python,vim,vimrc
+  include_tasks: 
+    file: "tasks/vim.yml"
+    apply:
+      tags: [ vim ]

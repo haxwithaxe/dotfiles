@@ -1,0 +1,5 @@
+# I set my system time to UTC because I use my workstations as part of my
+#   docker swarm and some things don't like mismatched timezones. This makes
+#   sure the user still lives in an apropriate timezone even if the system time
+#   is UTC.
+export TZ="America/New_York"

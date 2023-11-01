@@ -1,0 +1,22 @@
+# Print the user@host colorized
+#
+# __user_host <color>
+#
+# Arguments:
+#	color: Terminal color code for the user@host or "none"
+__user_host() {
+	local user_color="${1:-15}"
+	local host_color="${2:-15}"
+	if [ "$user_color" == "none" ]; then
+		user_color=15
+	fi
+	if [ "$host_color" == "none" ]; then
+		host_color=15
+	fi
+	printf "\[\e[38;5;${user_color}m\]\\\\u\[\033[00m\]"
+	printf "\[\e[38;5;241m\]@\[\033[00m\]"
+	printf "\[\e[38;5;${host_color}m\]\\\\h\[\033[00m\]"
+	return 0
+}
+
+# vim: set filetype=sh:

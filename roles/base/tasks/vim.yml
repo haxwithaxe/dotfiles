@@ -1,0 +1,43 @@
+---
+
+- name: Install vimrc
+  tags: install,neovim,vim,vimrc
+  copy:
+    src: "files/vim/vimrc"
+    dest: "{{ user.home_dir }}/.vimrc"
+
+- name: Ensure vimrc include directory exists
+  tags: install,neovim,vim,vimrc
+  file:
+    path: "{{ user.home_dir }}/.vim/include"
+    state: directory
+
+- name: Check for NeoVIM
+  tags: always
+  shell: "nvim --version"
+  register: _neovim_installed
+  changed_when: no
+  check_mode: no
+
+- name: Configure NeoVIM if it's installed
+  tags: install,neovim,python
+  include_tasks: 
+    file: "tasks/neovim.yml"
+    apply:
+      tags: [ neovim ]
+  when: _neovim_installed.rc == 0 or force_neovim
+
+- name: Configure vim plugins
+  tags: install,neovim,plugins,python,vim
+  include_tasks: 
+    file: "tasks/{{item}}.yml"
+    apply:
+      tags: [ plugins, neovim, vim ]
+  with_items:
+    - auto-pairs
+    - dockerfile
+    - indentline
+    - vim-gitgutter
+    - vim-python-pep8-indent
+    - vim-sleuth
+    - vim-solarized8

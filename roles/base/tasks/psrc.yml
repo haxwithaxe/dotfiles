@@ -1,0 +1,33 @@
+---
+
+- name: Install psrc dependencies
+  tags: install,prepare
+  become_user: root
+  package:
+    name: bash-builtins
+    state: latest
+
+- name: Install .psrc
+  tags: install
+  copy:
+    src: "files/psrc/psrc"
+    dest: "{{ user.home_dir }}/.psrc"
+
+- name: Install .psrc.d
+  tags: install
+  copy:
+    src: "files/psrc/{{ item }}"
+    dest: "{{ user.home_dir }}/.psrc.d/{{ item }}"
+  with_items:
+    - 00-userhost
+    - 00-git
+    - 01-smallpwd
+    - 02-venv
+    - conf
+
+- name: Install host specific .psrc.d files
+  tags: host_specific,install
+  copy:
+    src: "files/psrc/{{ item }}"
+    dest: "{{ user.home_dir }}/.psrc.d/{{ item }}"
+  with_items: "{{ host_psrc_files | default([]) }}"

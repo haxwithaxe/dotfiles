@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Manage the state of the screen lock"""
+
+import os
+import re
+import subprocess
+import sys
+import time
+
+
+def sanitize_time(duration_string):
+    """Returns a sanitized formatted duration."""
+    duration_spec = ''
+    spec = {k: v for v, k in re.findall(r'(\d+(?:\.?\d+)?)(h|m|s)', duration_string)}
+    if 'h' in spec:
+        duration_spec = '{}h'.format(int(spec['h']))
+    if 'm' in spec:
+        duration_spec += '{}m'.format(int(spec['m']))
+    if 's' in spec:
+        duration_spec += '{}s'.format(int(spec['s']))
+    print(duration_spec)
+    return duration_spec
+
+
+def off():
+    """Disables the screen lock"""
+    print('off')
+    subprocess.check_call(['xset', '-dpms'])
+    subprocess.check_call(['xset', 's', 'noblank'])
+    subprocess.check_call(['xset', 's', 'off'])
+
+
+def on():
+    print('on')
+    """Enables the screen lock."""
+    subprocess.check_call(['xset', '+dpms'])
+    subprocess.check_call(['xset', 's', 'blank'])
+    subprocess.check_call(['xset', 's', 'on'])
+
+
+def main():
+    try:
+        target_state = sys.argv[1]
+    except IndexError:
+        target_state = None
+    finally:
+        if target_state not in ('on', 'off'):
+            print('Either "on" or "off" must be given as the first argument.')
+            sys.exit(1)
+    try:
+        duration_string = sys.argv[2]
+    except IndexError:
+        duration_string = None
+    if target_state == 'on':
+        on()
+    if target_state == 'off':
+        off()
+        if duration_string:
+            duration = sanitize_time(duration_string)
+            subprocess.check_call([
+                'systemd-run',
+                '--user',
+                '--on-active={}'.format(duration),
+                os.path.realpath(sys.argv[0]),
+                'on'
+                ])
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,16 @@
+---
+
+force_bash: no
+force_bash_completion: no
+force_psrc: no
+force_neovim: no
+force_vim_plugins: no
+
+device_type: "noninteractive"
+
+# Just because I'm lazy and this is enough for things like stock VM images.
+users: 
+  - name: "hax"
+    home_dir: "/home/hax"
+  - name: "root"
+    home_dir: "/root"

@@ -1,0 +1,43 @@
+---
+
+- name: Setup prerequisits
+  tags: install,python,prepare
+  include_tasks: 
+    file: "tasks/pre.yml"
+    apply:
+      tags: [ prepare ]
+
+
+- name: Setup dotfiles for each interactive user
+  tags: config,dependency,javascript,neovim,plugins,python,syntax,vim
+  include_tasks:
+    file: "tasks/interactive-user.yml"
+    apply:
+      become_user: "{{ user.name }}"
+  when: user.interactive | default("no") | bool
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+
+# This is always available to multiple users
+- name: Add shared scripts
+  tags: bash,bash_aliases
+  copy:
+    src: "files/bin/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+  with_items:
+    - "df-to-duf"
+    - "random-str"
+    - "random-num"
+
+- name: Setup dotfiles for each user
+  tags: bash,bash_aliases
+  include_tasks: "tasks/user.yml"
+  args:
+    apply:
+      become_user: "{{ user.name }}"
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user

@@ -1,0 +1,14 @@
+---
+
+- name: Install QMK package
+  tags: install,python,qmk
+  community.general.pipx:
+    name: qmk
+    state: install
+
+# Requires sudo nopasswd for qmk
+- name: Setup QMK environment
+  tags: install,qmk
+  shell:
+    cmd: "{{ gui_user.home_dir }}/.local/bin/qmk setup -y -H {{ gui_user.home_dir }}/dev/qmk_firmware -b {{ qmk_git_branch }} {{ github_user }}/qmk_firmware"
+    creates: "{{ gui_user.home_dir }}/dev/qmk_firmware"

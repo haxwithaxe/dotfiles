@@ -1,0 +1,4 @@
+# Fix key map if .Xmodmap exists
+if [ -f ~/.Xmodmap ] ;then
+	xmodmap ~/.Xmodmap
+fi

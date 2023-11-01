@@ -1,0 +1,9 @@
+---
+
+users: 
+  - name: "hax"
+    home_dir: "/home/hax"
+  - name: "root"
+    home_dir: "/root"
+
+

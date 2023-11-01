@@ -1,0 +1,13 @@
+---
+
+- name: Configure vim plugins
+  tags: install,dependency,javascript,plugins,python,syntax
+  include_tasks: 
+    file: "tasks/{{item}}.yml"
+    apply:
+      tags: [ plugins ]
+  with_items:
+    - jedi-vim
+    - neomake
+    - supertab
+    - vim-jsbeautify

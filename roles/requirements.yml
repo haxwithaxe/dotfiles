@@ -1,0 +1,5 @@
+---
+
+- src: https://github.com/haxwithaxe/ansible-role-warpd.git
+  version: main
+  name: haxwithaxe.warpd

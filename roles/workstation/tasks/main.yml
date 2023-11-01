@@ -1,0 +1,108 @@
+---
+
+- name: Set force variables if global force
+  tags: always
+  set_fact:
+    force_dropbox: yes
+    force_networkmanager: yes
+  when: force | default(false) | bool
+
+- name: Ensure important directories exist
+  tags: always
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ gui_user.home_dir }}/.config"
+    - "{{ gui_user.home_dir }}/.config/autostart"
+
+- name: Load secrets
+  tags: always
+  include_vars:
+    dir: "{{ playbook_dir }}/secrets"
+
+- name: Install software
+  tags: software,arduino,cleanup,download,install,python,scripts,tagit
+  include_tasks: 
+    file: "tasks/software.yml"
+    apply:
+      tags: [ software ]
+
+- name: Install NetworkManager
+  tags: networkmanager,install
+  include_tasks:
+    file: "tasks/networkmanager.yml"
+    apply:
+      tags: [ networkmanager ]
+  when: use_networkmanager
+
+- name: Install i3 files
+  tags: i3,install
+  include_tasks:
+    file: "tasks/i3.yml"
+    apply:
+      tags: [ i3 ]
+
+- name: Install workstation related bash aliases
+  tags: bash,bash_aliases
+  copy:
+    src: "files/bash_aliases/{{ item }}"
+    dest: "{{ gui_user.home_dir }}/.bash_aliases.d/{{ item }}"
+  with_items:
+    - ansible
+
+- name: Install workstation related bash completion
+  tags: bash,bash_completion
+  copy:
+    src: "files/bash_completion/{{ item }}"
+    dest: "{{ gui_user.home_dir }}/.bash_completion.d/{{ item }}"
+  with_items: [] # Temporarily empty
+
+- name: Configure vim plugin ansible
+  tags: vim,plugins,neovim
+  git:
+    repo: "https://github.com/pearofducks/ansible-vim.git"
+    dest: "{{ gui_user.home_dir }}/.vim/pack/vendor/start/ansible-vim"
+    force: yes
+
+- name: Install xsessionrc files
+  tags: xsessionrc,install
+  include_tasks:
+    file: "tasks/xsession.yml"
+    apply:
+      tags: [ xsessionrc ]
+
+- name: Install gnupg config
+  tags: gnupg,install
+  include_tasks:
+    file: "tasks/gnupg.yml"
+    apply:
+      tags: [ gnupg ]
+
+- name: Install gtk configs
+  tags: themes,gtk,install
+  include_tasks:
+    file: "tasks/gtk.yml"
+    apply:
+      tags: [ themes, gtk ]
+
+- name: Install qt configs
+  tags: themes,qt,install
+  include_tasks:
+    file: "tasks/qt.yml"
+    apply:
+      tags: [ themes, qt ]
+
+- name: Install dropbox
+  tags: download,dropbox,install,software
+  include_tasks:
+    file: "tasks/dropbox.yml"
+    apply:
+      tags: [ dropbox, software ]
+
+- name: Install QMK
+  tags: qmk,install,software
+  include_tasks: 
+    file: "tasks/qmk.yml"
+    apply:
+      tags: [ qmk, software ]

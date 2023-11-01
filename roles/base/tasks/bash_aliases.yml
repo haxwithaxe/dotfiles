@@ -1,0 +1,27 @@
+---
+
+- name: Install .bash_aliases
+  tags: install
+  copy:
+    src: "files/bash_aliases/bash_aliases"
+    dest: "{{ user.home_dir }}/.bash_aliases"
+
+- name: Install base .bash_aliases.d files
+  tags: install
+  copy:
+    src: "files/bash_aliases/{{ item }}"
+    dest: "{{ user.home_dir }}/.bash_aliases.d/{{ item }}"
+  with_items:
+    - color-grep
+    - color-ls
+    - derp
+    - needsreboot
+    - python3
+    - pipx-global
+
+- name: Install host specific bash aliases
+  tags: host_specific,install
+  copy:
+    src: "files/bash_aliases/{{ item }}"
+    dest: "{{ user.home_dir }}/.bash_aliases.d/{{ item }}"
+  with_items: "{{ host_bash_aliases_files | default([]) }}"

@@ -1,0 +1,3 @@
+# merge "paste buffers"
+autocutsel -fork &
+autocutsel -selection PRIMARY -fork &

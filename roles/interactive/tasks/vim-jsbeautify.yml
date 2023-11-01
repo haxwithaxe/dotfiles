@@ -1,0 +1,19 @@
+---
+
+- name: Configure vim plugin vim-jsbeautify
+  tags: install,javascript,syntax
+  git:
+    repo: "https://github.com/maksimr/vim-jsbeautify.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/vim-jsbeautify"
+    recursive: yes
+    force: yes
+
+
+- name: Install dependencies for vim-jsbeutify
+  tags: install,dependency,javascript,syntax
+  become: yes
+  become_user: root
+  package:
+    name: nodejs
+    state: latest
+

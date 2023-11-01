@@ -1,0 +1,5 @@
+[user]
+	email = spam@haxwithaxe.net
+	name = haxwithaxe
+[init]
+	defaultBranch = main

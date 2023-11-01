@@ -1,0 +1,9 @@
+# Lock screen after 10min and blank the screen 60sec before locking.
+
+xautolock -detectsleep \
+	-secure \
+	-time 10 \
+	-locker "i3lock -f -e -u -c 000009" \
+	-notify 60 \
+	-notifier "xset s activate" &
+

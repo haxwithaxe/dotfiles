@@ -1,0 +1,62 @@
+---
+
+- name: Install basic screen lock
+  tags: screen_lock,install
+  block:
+    - name: Install basic screen lock dependencies
+      tags: screen_lock,install
+      become_user: root
+      package:
+        name:
+          - xss-lock
+        state: latest
+
+    - name: Install basic screen lock .xsessionrc.d
+      tags: screen_lock,install
+      copy:
+        src: "files/xsession/screen-lock-basic"
+        dest: "{{ gui_user.home_dir }}/.xsessionrc.d/screen-lock-basic"
+
+  when: screen_lock == 'basic'
+
+
+- name: Install advanced screen lock
+  tags: screen_lock,install
+  block:
+    - name: Install advanced screen lock dependencies
+      tags: screen_lock,install
+      become_user: root
+      package:
+        name:
+          - xautolock
+        state: latest
+
+    - name: Install advanced screen lock .xsessionrc.d
+      tags: screen_lock,install
+      copy:
+        src: "files/xsession/screen-lock-advanced"
+        dest: "{{ gui_user.home_dir }}/.xsessionrc.d/screen-lock-advanced"
+
+  when: screen_lock == 'advanced'
+
+
+- name: Install .xsessionrc
+  tags: install
+  copy:
+    src: "files/xsession/xsessionrc"
+    dest: "{{ gui_user.home_dir }}/.xsessionrc"
+
+
+- name: Ensure .xsession.d exists
+  tags: install
+  file:
+    path: "{{ gui_user.home_dir }}/.xsessionrc.d"
+    state: directory
+
+
+- name: Install host specific .xsessionrc.d
+  tags: install
+  copy:
+    src: "files/xsession/{{ item }}"
+    dest: "{{ gui_user.home_dir }}/.xsessionrc.d/{{ item }}"
+  with_items: "{{ host_xsessionrc_files | default([]) }}"

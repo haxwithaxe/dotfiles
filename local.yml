@@ -1,0 +1,49 @@
+---
+# Some hosts are pull only so this is a lightly modified main.yml just for them.
+
+- name: Prep
+  hosts: all
+  connection: local
+  become: yes
+  tasks:
+    - name: Update package cache
+      tags: prepare
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+- name: Base role
+  hosts: all
+  connection: local
+  become: yes
+  roles:
+    - role: "base"
+      tags: [ base ]
+
+- name: Interactive role
+  hosts: interactive,workstations,laptops
+  connection: local
+  become: yes
+  roles:
+    - role: "interactive"
+      tags: [ interactive ]
+
+- name: Workstation role
+  hosts: workstations,laptops
+  connection: local
+  become: yes
+  become_user: "{{ gui_user.name }}"
+  roles:
+    - role: haxwithaxe.warpd
+      tags: [ workstation, warpd ]
+    - role: "workstation"
+      tags: [ workstation ]
+
+- name: Laptop role
+  hosts: laptops
+  connection: local
+  become: yes
+  become_user: "{{ gui_user.name }}"
+  roles:
+    - role: "laptop"
+      tags: [ laptop ]

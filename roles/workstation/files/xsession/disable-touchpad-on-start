@@ -1,0 +1,5 @@
+
+if [ -f "/sys/devices/platform/dock.0/docked" ] \
+	   && [ "$(cat /sys/devices/platform/dock.0/docked)" == "1" ]; then
+	toggle_touchpad disable
+fi

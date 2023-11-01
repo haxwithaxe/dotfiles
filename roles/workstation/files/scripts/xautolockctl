@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+
+import argparse
+import re
+import subprocess
+
+import gi.repository.GLib
+import pydbus
+
+
+REPLACE = 'replace'
+TITLE = 'xautolock'
+SERVICE = 'xautolock.service'
+TIMER = 'xautolock.timer'
+
+
+class ProcessError(Exception):
+    """Exception for a generic failure to run a shelled out command.
+
+    Attributes:
+        process (Popen): The Popen instance passed to the constructor.
+
+    Arguments:
+        proc (Popen): The failed Popen instance.
+
+    """
+
+    def __init__(self, proc):
+        super().__init__(proc)
+        self.process = proc
+
+
+class Unit:
+    """Systemd unit interface wrapper.
+
+    Attributes:
+        is_active (bool): True if the unit is active.
+        name (str): The unit name.
+        path (str): The unit dbus path (without the "unit/").
+
+    Arguments:
+        name: The unit's name. Example: testing.service.
+
+    Methods:
+        Start, Stop, Reload, Restart, TryRestart, ReloadOrRestart, ReloadOrTryRestart:
+            Wrappers around the corresponding dbus Unit interface methods
+            adding a default `mode` argument of `REPLACE` (as used by the systemctl command).
+            They return the output of the dbus method which is a dbus path for the stop job.
+
+    """
+
+    name = None
+    path = None
+    __proxy = None
+
+    def __init__(self, name):
+        self.name = name
+        self.path = name.replace('.', '_2e')
+        self.__proxy = pydbus.SessionBus().get('.systemd1', 'unit/'+self.path)
+
+    @property
+    def timer(self):
+        return Unit(TIMER)
+
+    def disable(self):
+        systemd = pydbus.SessionBus().get('.systemd1')['.Manager']
+        systemd.DisableUnitFiles([self.name], True)
+
+    def enable(self):
+        systemd = pydbus.SessionBus().get('.systemd1')['.Manager']
+        systemd.EnableUnitFiles([self.name], True, True)
+
+    def Start(self, mode=REPLACE):
+        return self.__proxy.Start(mode)
+
+    def Stop(self, mode=REPLACE):
+        return self.__proxy.Stop(mode)
+
+    def start(self):
+        try:
+            self.timer.Stop()
+            self.timer.disable()
+        except gi.repository.GLib.Error as err:
+            if err.code != 36:
+                raise
+        self.enable()
+        self.Start()
+
+    def stop(self):
+        try:
+            self.timer.Stop()
+            self.timer.disable()
+        except gi.repository.GLib.Error as err:
+            if err.code != 36:
+                raise
+        self.Stop()
+
+    def start_timer(self, time):
+        cmd = ['/usr/bin/systemd-run', '--user', '--unit=%s' % self.name, '--on-active=%s' % time]
+        while True:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            stderr = proc.stderr.read().decode()
+            if proc.wait() == 0:
+                unit = _get_unit(
+                    r'Running \w+ as unit: (\w+\.\w+)',
+                    stderr)
+                if unit:
+                    return unit
+                raise ProcessError(proc)
+            else:
+                unit = _get_unit(r'Failed to start transient \w+ unit: Unit (\w+\.\w+) already exists', stderr)
+                if not unit:
+                    raise ProcessError(proc)
+                return unit
+
+
+def _get_unit(regex, data):
+    unit_name_matches = re.search(regex, data)
+    if unit_name_matches:
+        unit_name = unit_name_matches.groups()[0]
+        return Unit(unit_name)
+
+def notify(message, timeout=5):
+    notifications = pydbus.SessionBus().get('.Notifications')
+    notifications.Notify('', 0, '', TITLE, message, [], {'urgency': pydbus.Variant('b', 1)}, timeout*1000)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--disable', action='store_true', default=False)
+    parser.add_argument('--stop', action='store_true', default=False)
+    parser.add_argument('--enable', action='store_true', default=False)
+    parser.add_argument('--start', action='store_true', default=False)
+    parser.add_argument('--resume', action='store_true', default=False)
+    parser.add_argument('--suspend', default='130m')
+    return parser.parse_args()
+
+
+def main():
+    unit = Unit(SERVICE)
+    args = parse_args()
+    if args.disable:
+        notify('Disabling the screen lock indefinitely.')
+        unit.disable()
+    elif args.stop:
+        notify('Stopping the screen lock until next X restart.')
+        unit.stop()
+    elif args.enable or args.start or args.resume:
+        notify('Starting the screen lock.')
+        unit.start()
+    elif args.suspend:
+        notify('Suspending screen lock for %s' % args.suspend)
+        unit.stop()
+        unit.start_timer(args.suspend)
+
+
+if __name__ == '__main__':
+    main()

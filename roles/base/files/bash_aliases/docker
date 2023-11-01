@@ -1,0 +1,75 @@
+# Docker related aliases
+#
+# I cheat a little and include some completion in here
+#
+# `docker-service-exec` is a fancypants script to run commands on swarm
+#   services like kubernetes does on pods. It's available as a gist which is
+#   the ultimate source of truth.
+# `docker-remote-exec` is coming soon. It's the same idea but with non-swarm containers.
+#
+# For refrence /usr/share/bash-completion/completions/docker
+
+alias dsls='docker service ls'
+alias dslsw='watch -n 1 docker service ls'
+
+__dummy_docker_service_completion() {
+  COMPREPLY=( $(compgen -W "$(docker service ls --format "{{.Name}}")" -- "${COMP_WORDS[COMP_CWORD]}") )
+  return 0
+}
+
+__dummy_docker_container_completion() {
+  COMPREPLY=( $(compgen -W "$(docker container ls --format "{{.Name}}")" -- "${COMP_WORDS[COMP_CWORD]}") )
+  return 0
+}
+
+__dummy_docker_context_completion() {
+  COMPREPLY=( $(compgen -W "$(docker context ls --format "{{.Name}}")" -- "${COMP_WORDS[COMP_CWORD]}") )
+  return 0
+}
+
+__dummy_docker_stack_completion() {
+  COMPREPLY=( $(compgen -W "$(docker stack ls --format "{{.Name}}")" -- "${COMP_WORDS[COMP_CWORD]}") )
+  return 0
+}
+
+__dde_completion() {
+  if [ $COMP_CWORD -eq 1 ]; then
+    COMPREPLY=( $(compgen -f "${COMP_WORDS[1]}" | grep -i '\.yml$') )
+  else
+    __dummy_docker_stack_completion
+  fi
+}
+
+complete -F __dummy_docker_service_completion dslg
+alias dslg='docker service logs'
+complete -F __dummy_docker_service_completion dslgf
+alias dslgf='docker service logs --follow'
+
+
+complete -F __dummy_docker_container_completion dlg
+alias dlg='docker logs'
+complete -F __dummy_docker_container_completion dlgf
+alias dlgf='docker logs --follow'
+
+complete -F __dummy_docker_service_completion dsps
+alias dsps='docker service ps --no-trunc'
+complete -F __dummy_docker_service_completion dspsw
+alias dspsw='watch -n 1 docker service ps --no-trunc'
+
+alias dps='docker ps'
+alias dcls='docker container ls'
+
+complete -F __dummy_docker_container_completion dce
+alias dce='docker container exec -it'
+
+complete -F __dde_completion dde
+alias dsde='docker stack deploy -c'
+
+complete -F __dummy_docker_stack_completion drm
+alias dsrm='docker stack rm'
+
+if which docker-service-exec >/dev/null; then
+  complete -F __dummy_docker_service_completion docker-service-exec
+  complete -F __dummy_docker_service_completion dse
+  alias dse='docker-service-exec'
+fi

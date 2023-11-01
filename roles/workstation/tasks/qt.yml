@@ -1,0 +1,22 @@
+
+- name: Install packages for Qt config
+  tags: themes,install
+  become_user: root
+  package:
+    name:
+      - qt5ct
+      - materia-kde
+      - qt5-style-kvantum
+    state: latest
+
+- name: Install qt5ct env var for xsession
+  tags: themes,install
+  copy:
+    content: "export QT_QPA_PLATFORMTHEME=qt5ct"
+    dest: "{{ gui_user.home_dir }}/.xsessionrc.d/qt5ct"
+
+- name: Install Qt style config directory
+  tags: themes,install
+  copy:
+    src: "files/qt5ct"
+    dest: "{{ gui_user.home_dir }}/.config/"

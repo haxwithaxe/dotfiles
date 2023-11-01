@@ -1,0 +1,34 @@
+---
+
+# arduino_version: see group_vars
+
+use_networkmanager: no
+use_nm_applet: no
+force_dropbox: no
+force_networkmanager: no
+
+gui_user:
+  name: "hax"
+  home_dir: "/home/hax"
+
+chrome:
+  profiles:
+    - default
+    - clean
+
+host_bash_aliases_files:
+  - random-port
+
+firefox:
+  profiles:
+    - default
+    - clean
+
+screen_lock: basic  # basic|advanced
+
+i3_config:
+  displays: {}
+  workspaces: {}
+
+i3bar: {}
+i3bar_critical_temp_default: 80

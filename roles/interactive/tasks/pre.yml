@@ -1,0 +1,9 @@
+---
+
+- name: Install required packages
+  tags: install,prepare,python
+  package:
+    name:
+      - python3-pip
+      - duf
+    state: latest

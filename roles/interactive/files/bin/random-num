@@ -1,0 +1,261 @@
+#!/usr/bin/env python3
+"""Random number generator.
+
+Prints a random number within given constraints.
+* Arbitrary numbers
+* Port numbers - safe ranges, system, all
+* UID/GID - safe ranges, system, all
+* Within a range
+* On an interval
+* In base10
+* In hexadecimal
+* In octal
+"""
+
+import argparse
+import itertools
+import random
+import sys
+from typing import Union
+
+__authors__ = ('haxwithaxe <spam@haxwithaxe.net>',)
+__copyright__ = 'haxwithaxe 2023'
+__license__ = 'GPLv3'
+
+
+def _carve(
+    sequence: list[Union[float, int]],
+    start_value: Union[float, int] = None,
+    end_value: Union[float, int] = None,
+    within: bool = True,
+) -> list[Union[float, int]]:
+    """Slice a list by value once or twice.
+
+    Arguments:
+        sequence: A list of `float`s or `int`s to cut up.
+        start_value (optional): The value to cut at first.
+        end_value (optional): The value to cut at the second time.
+        within (optional): If `True` the values between `start_value`
+            (or the start) and `end_value` (or the end) are returned. If
+            `False` the  values between the start and `start_value`, and/or
+            `end_value` and the end are returned.
+    """
+    if start_value in sequence and end_value in sequence:
+        start = sequence.index(start_value)
+        stop = sequence.index(end_value)
+        if within:
+            return sequence[start:stop]
+        return sequence[:start] + sequence[stop:]
+    if start_value in sequence:
+        cut = sequence.index(start_value)
+        if within:
+            return sequence[cut:]
+        return sequence[:cut]
+    if end_value in sequence:
+        cut = sequence.index(end_value)
+        if within:
+            return sequence[:cut]
+        return sequence[cut:]
+    return sequence
+
+
+def _get_selection(args: argparse.Namespace) -> list[Union[float, int]]:
+    range_start = 0
+    interval = 1
+    range_end = 2 ** 8
+    if args.port:
+        range_start = 1
+        range_end = (2 ** 16) - 1
+        if args.system:
+            range_end = 1024
+    if args.user:
+        range_end = 2 ** 16
+        if args.system:
+            range_end = 999
+    if args.start is not None:
+        range_start = args.start
+    if args.end is not None:
+        range_end = args.end
+    if args.interval is not None:
+        interval = float(args.interval)
+    # Get initial selection
+    if args.length:
+        if args.hex:
+            min_range_start = int('f' * args.length - 1, base=16) + 1
+            max_range_end = int('f' * args.length, base=16)
+        elif args.octal:
+            min_range_start = int('7' * args.length - 1, base=8) + 1
+            max_range_end = int('7' * args.length, base=8)
+        else:
+            min_range_start = int('9' * args.length - 1, base=10) + 1
+            max_range_end = int('9' * args.length, base=10)
+        selection = _range(
+            max((min_range_start, range_start)),
+            min((max_range_end, range_end), interval),
+        )
+    else:
+        selection = _range(range_start, range_end, interval)
+    # Trim reserved/protected values from selection
+    if args.user and not args.all and not args.system:
+        # Exclude systemd-homed UIDs
+        selection = _carve(selection, 60001, 60514, within=False)
+        # Exclude system UIDs
+        selection = _carve(selection, start_value=1025)
+        # Exclude nobody UID
+        return _carve(selection, end_value=65533)
+    if args.port and not args.all and not args.system:
+        return _carve(selection, start_value=1025)
+    return selection
+
+
+def _print_choice(args: argparse.Namespace, choice: int):
+    if args.hex:
+        print(hex(choice))
+        return
+    if args.octal:
+        print(oct(choice))
+        return
+    if int(choice) == choice:
+        print(int(choice))
+        return
+    print(choice)
+
+
+def _range(
+    start: Union[float, int],
+    stop: Union[float, int],
+    step: Union[float, int] = 1,
+) -> list[Union[float, int]]:
+    if start - stop >= 0:
+        raise ValueError(
+            f'The start of range ({start}) is greater than the end of range '
+            f'({stop})'  # nofmt
+        )
+    output = []
+    for count in itertools.count(start, step):
+        if count > stop:
+            break
+        output.append(count)
+    return output
+
+
+def _main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-p',
+        '--port',
+        action='store_true',
+        default=None,
+        help=(
+            'Print a random port number outside of reserved ranges. '
+            'Add -a/--all for all port numbers or -y/--system for a port in '
+            '1-1024.'
+        ),
+    )
+    parser.add_argument(
+        '-u',
+        '-g',
+        '--uid',
+        '--gid',
+        '--group',
+        '--user',
+        dest='user',
+        action='store_true',
+        default=False,
+        help=(
+            'Print a random UID/GID outside of reserved ranges. Add -a/--all '
+            'for all valid POSIX UID/GID or add --system for all system range '
+            'UID/GID numbers.'
+        ),
+    )
+    parser.add_argument(
+        '-s',
+        '--start',
+        type=int,
+        default=None,
+        help=(
+            'The start of the range. Defaults to 0 or 1 if -p/--port is '
+            'given.'  # nofmt
+        ),
+    )
+    parser.add_argument(
+        '-e',
+        '--end',
+        type=int,
+        default=None,
+        help=f'The end of the range (inclusive). Defaults to {2**8}',
+    )
+    parser.add_argument(
+        '-i',
+        '--interval',
+        default=1,
+        help='The interval of the range. Defaults to 1.',
+    )
+    parser.add_argument(
+        '-l',
+        '--length',
+        type=int,
+        default=None,
+        help=(
+            'The number of digits in the random number. Defaults to one or '
+            'more digits.'
+        ),
+    )
+    parser.add_argument(
+        '-a',
+        '--all',
+        action='store_true',
+        default=False,
+        help='Select a value from all values not just safe ones.',
+    )
+    parser.add_argument(
+        '-y',
+        '--system',
+        action='store_true',
+        default=False,
+        help=(
+            'Select a value from values in ranges reserved for system '
+            'services.'  # nofmt
+        ),
+    )
+    parser.add_argument(
+        '-x',
+        '--hex',
+        action='store_true',
+        default=False,
+        help='Print the random number in hexadecimal',
+    )
+    parser.add_argument(
+        '-o',
+        '--octal',
+        action='store_true',
+        default=False,
+        help='Print the random number as octal',
+    )
+    args = parser.parse_args()
+    if args.interval is not None:
+        try:
+            int(args.interval)
+        except ValueError:
+            if args.port or args.user or args.hex or args.octal:
+                print(
+                    'When printing a UID/GID, port number, hexadecimal, or '
+                    'octal -i/--interval must be an `int` not:',
+                    args.interval,
+                )
+                sys.exit(1)
+            try:
+                float(args.interval)
+            except ValueError:
+                print(
+                    '-i/--interval must be a  `float` or `int` not:',
+                    args.interval,
+                )
+                sys.exit(1)
+    selection = _get_selection(args)
+    choice = random.choice(selection)
+    _print_choice(args, choice)
+
+
+if __name__ == '__main__':
+    _main()

@@ -1,0 +1,5 @@
+---
+
+# Ansible Semaphore likes the collection requirements here
+
+- name: community.general

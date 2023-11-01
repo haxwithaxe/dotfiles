@@ -1,0 +1,1 @@
+alias battery="python -c 'print(\"{}%\".format(int(float(open(\"/sys/class/power_supply/BAT0/charge_now\").read())/float(open(\"/sys/class/power_supply/BAT0/charge_full\").read())*100)))'"

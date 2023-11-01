@@ -1,0 +1,29 @@
+---
+
+- name: Ensure important directories exist
+  tags: always
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ user.home_dir }}/.config"
+    - "{{ user.home_dir }}/.local"
+    - "{{ user.home_dir }}/.psrc.d"
+    - "{{ user.home_dir }}/.bash_aliases.d"
+    - "{{ user.home_dir }}/.bash_completion.d"
+    - "{{ user.home_dir }}/.bashrc.d"
+    - "{{ user.home_dir }}/.config/nvim"
+    - "{{ user.home_dir }}/.vim"
+
+- name: Install vim config
+  tags: install,config,dependency,javascript,neovim,plugins,python,syntax,vim
+  include_tasks: 
+    file: "tasks/vim.yml"
+    apply:
+      tags: [ vim, neovim ]
+
+- name: Install black config
+  tags: install,config,python,syntax
+  copy:
+    src: files/black
+    dest: "{{ user.home_dir }}/.config/black"

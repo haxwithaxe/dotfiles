@@ -1,0 +1,11 @@
+noninteractive
+debian-12
+
+[interactive]
+interactive
+
+[workstations]
+workstation
+
+[laptops]
+laptop

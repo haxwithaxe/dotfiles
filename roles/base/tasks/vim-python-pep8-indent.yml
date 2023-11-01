@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin vim-python-pep8-indent
+  tags: dotfiles,base,install,neovim,plugins,python,vim
+  git:
+    repo: "https://github.com/Vimjas/vim-python-pep8-indent.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/vim-python-pep8-indent"
+    force: "{{ force_vim_plugins }}"

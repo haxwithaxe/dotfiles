@@ -1,0 +1,8 @@
+# Hashicorp tool autocomplete
+if which packer >/dev/null; then
+	complete -C /usr/bin/packer packer
+fi
+
+if which terraform >/dev/null; then
+	complete -C /usr/bin/terraform terraform
+fi

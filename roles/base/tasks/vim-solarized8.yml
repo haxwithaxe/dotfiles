@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin vim-solarized8
+  tags: install
+  git:
+    repo: "https://github.com/lifepillar/vim-solarized8.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/vim-solarized8"
+    force: "{{ force_vim_plugins }}"

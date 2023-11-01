@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin jedi-vim
+  tags: install,python
+  git:
+    repo: "https://github.com/davidhalter/jedi-vim.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/jedi-vim"
+    recursive: yes

@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin vim-sleuth
+  tags: install
+  git:
+    repo: "https://tpope.io/vim/sleuth.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/vim-sleuth"
+    force: "{{ force_vim_plugins }}"

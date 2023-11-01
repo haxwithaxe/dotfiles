@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+import argparse
+import random
+import re
+import string
+
+
+def random_str(length, lower=False, upper=False, digits=False, special=False,
+			   whitespace=False, hexidecimal=False, octal=False, exclude=None):
+	if hexidecimal:
+		return ''.join(random.choice(string.hexdigits) for _ in range(length))
+	if octal:
+		return ''.join(random.choice(string.hexdigits) for _ in range(length))
+	if not lower and not upper and not digits and not special:
+		raise ValueError('One or more of `lower`, `upper`, `digits`, or `special` must be `True`')
+	selection = []
+	if lower:
+		selection.extend(string.ascii_lowercase)
+	if upper:
+		selection.extend(string.ascii_uppercase)
+	if digits:
+		selection.extend(string.digits)
+	if special:
+		selection.extend(string.punctuation)
+	if whitespace:
+		selection.extend(re.sub(r'(\n|\r)', '', string.whitespace))
+	if exclude:
+		for char in exclude:
+			try:
+				selection.pop(selection.index(char))
+			except IndexError:
+				pass
+	return ''.join(random.choice(selection) for _ in range(length))
+
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-l', '--lower', action='store_true', default=None,
+						help=string.ascii_lowercase)
+	parser.add_argument('-u', '--upper', action='store_true', default=None,
+						help=string.ascii_uppercase)
+	parser.add_argument('--letters', action='store_true', default=False,
+					    help=string.ascii_letters)
+	parser.add_argument('-d', '--digits', action='store_true', default=None,
+						help=string.digits)
+	parser.add_argument('--letters-numbers', action='store_true', default=False,
+					    help=string.ascii_letters+string.digits)
+	parser.add_argument('-s', '--special', action='store_true', default=None,
+						help=string.punctuation.replace('%', '%%'))
+	parser.add_argument('--non-whitespace', action='store_true', default=False,
+						help=string.ascii_letters+string.digits+string.punctuation.replace('%', '%%'))
+	parser.add_argument('-w', '--whitespace', action='store_true', default=None,
+						help='space and tab')
+	parser.add_argument('-a', '--all', action='store_true', default=False,
+						help=re.sub(r'(\n|\r)', '', string.printable.replace('%', '%%'))+' plus space and tab')
+	parser.add_argument('-x', '--hex', action='store_true', default=False,
+						help=string.hexdigits)
+	parser.add_argument('-o', '--octal', action='store_true', default=False,
+						help=string.octdigits)
+	parser.add_argument('-e', '--exclude', default=None,
+					    help='A string of characters to exclude from the'
+							 ' random output. Newline and carriage return are'
+							 ' excluded by default.')
+	parser.add_argument('length', type=int, default=None)
+	args = parser.parse_args()
+	length = args.length
+	if not length:
+		length = random.randint(16, 48)
+	if args.hex:
+		print(random_str(length, hexidecimal=True, exclude=args.exclude))
+		return
+	if args.octal:
+		print(random_str(length, octal=True, exclude=args.exclude))
+		return
+	if args.letters:
+		print(random_str(length, lower=True, upper=True, exclude=args.exclude))
+		return
+	if args.letters_numbers:
+		print(random_str(length, lower=True, upper=True, digits=True,
+				         exclude=args.exclude))
+		return
+	if args.non_whitespace:
+		print(random_str(length, lower=True, upper=True, digits=True,
+						 special=True, exclude=args.exclude))
+		return
+	if args.all:
+		print(random_str(length, lower=True, upper=True, digits=True,
+				         special=True, whitespace=True, exclude=args.exclude))
+		return
+	if not args.lower and not args.upper and not args.digits and not args.special and not args.whitespace:
+		print(random_str(length, lower=True, upper=True,
+						 digits=True, exclude=args.exclude))
+		return
+	print(random_str(length, lower=args.lower, upper=args.upper,
+				     digits=args.digits, special=args.special,
+					 whitespace=args.whitespace, exclude=args.exclude))
+
+if __name__ == '__main__':
+	main()

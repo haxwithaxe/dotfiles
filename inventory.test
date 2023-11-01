@@ -1,0 +1,10 @@
+# These are the only hosts to get pushed to for automated testing
+noninteractive
+
+[interactive]
+
+[workstations]
+
+
+[laptops]
+laptop

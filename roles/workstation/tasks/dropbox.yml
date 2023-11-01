@@ -1,0 +1,17 @@
+---
+
+- name: Download dropbox.py
+  tags: download,install,never
+  get_url:
+    url: "https://default.hax.in.net/cache/dropbox.py"
+    dest: "{{ gui_user.home_dir }}/.local/bin/dropbox"
+    mode: 0755
+    force: "{{ force_dropbox }}"
+
+# Using the shell to avoid hardcoding the dropbox version
+- name: Download dropbox
+  tags: download,install,never
+  shell:
+    cmd: 'wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -'
+    chdir: "{{ gui_user.home_dir }}/"
+    creates: "{{ gui_user.home_dir }}/.dropbox-dist"

@@ -1,0 +1,27 @@
+---
+
+- name: Install system packages
+  tags: touchpad,install
+  become: yes
+  become_user: root
+  package:
+    name:
+      - xserver-xorg-input-synaptics
+      - xserver-xorg-input-libinput
+    state: latest
+
+- name: Insall xsessionrc.d scripts
+  tags: touchpad,xsessionrc,install
+  copy:
+    src: "files/xsession/{{ item  }}"
+    dest: "{{ gui_user.home_dir }}/.xsessionrc.d/{{ item }}"
+  with_items:
+    - synaptic-mouse
+
+- name: Install laptop related bash aliases
+  tags: bash,bash_aliases
+  copy:
+    src: "files/bash_aliases/{{ item }}"
+    dest: "{{ gui_user.home_dir }}/.bash_aliases.d/{{ item }}"
+  with_items:
+    - battery

@@ -1,0 +1,24 @@
+# Compressed prompt with path and hostname
+
+# Print the current directory with compressed leading directories, 
+#   abbreviated $HOME, and length limited basename.
+#
+# Arguments:
+#   max_length (optional): The maximum length of the basename of the path. Defaults to 10.
+__psrc_small_pwd(){
+    local max_length=${1:-10}
+    # Expand path (without resolving links) in case it is just '.'
+    local cwd=$(realpath -s "${PWD:-$(pwd)}")
+    if [[ $cwd == $HOME ]] ;then
+        printf '~'
+    elif [ "$(basename "$cwd")" == "$cwd" ] ;then
+        printf "$cwd"
+    else
+	# Drop all but the first character or dot and first character from leading directory names
+	local path=$(dirname "$cwd" | sed -e "s:$HOME:~/:" -e 's:\/\(\.[^/]\|[^/]\)[^/]*:\1/:g')
+	printf "${path}"
+	printf "$(__psrc_helper_shorten $max_length "$(basename "$cwd")")"
+    fi
+}
+
+# vim: filetype=sh:

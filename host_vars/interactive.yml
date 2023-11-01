@@ -1,0 +1,19 @@
+---
+
+device_type: "interactive"
+
+users: 
+  - name: "hax"
+    home_dir: "/home/hax"
+    interactive: yes
+  - name: "root"
+    home_dir: "/root"
+
+host_bashrc_files:
+  - netshoot
+
+host_bash_aliases_files:
+  - docker
+
+host_bash_completion_files:
+  - hashicorp

@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin vim-surround
+  tags: install
+  git:
+    repo: "https://tpope.io/vim/surround.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/vim-surround"
+    force: "{{ force_vim_plugins }}"

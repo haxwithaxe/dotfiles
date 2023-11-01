@@ -1,0 +1,9 @@
+---
+
+- name: Install interactive .bash_aliases.d files
+  tags: bash,bash_aliases,install
+  copy:
+    src: "files/bash_aliases/{{ item }}"
+    dest: "{{ user.home_dir }}/.bash_aliases.d/{{ item }}"
+  with_items:
+    - df-to-duf

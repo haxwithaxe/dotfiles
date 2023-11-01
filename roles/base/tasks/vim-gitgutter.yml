@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin vim-gitgutter
+  tags: install
+  git:
+    repo: "https://github.com/airblade/vim-gitgutter.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/vim-gitgutter"
+    force: "{{ force_vim_plugins }}"

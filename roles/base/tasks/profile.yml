@@ -1,0 +1,14 @@
+---
+
+- name: Install .profile
+  tags: install
+  copy:
+    src: "files/profile/profile"
+    dest: "{{ user.home_dir }}/.profile"
+
+- name: Install host specific .profile.d files
+  tags: host_specific,install
+  copy:
+    src: "files/profile/{{ item }}"
+    dest: "{{ user.home_dir }}/.profile.d/{{ item }}"
+  with_items: "{{ host_bash_profile_files | default([]) }}"

@@ -1,0 +1,57 @@
+---
+
+- name: Install i3 and associated packages
+  tags: install
+  become_user: root
+  package:
+    name:
+      - "i3"
+      - "conky-std"
+      - "lua-json"
+      - "lua-socket"
+      - "dex"
+    state: latest
+
+- name: Ensure i3 config directory exists
+  tags: install
+  file:
+    path: "{{ gui_user.home_dir }}/.config/i3"
+    state: directory
+
+- name: Install i3 config
+  tags: install
+  template:
+    src: "templates/i3config.j2"
+    dest: "{{ gui_user.home_dir }}/.config/i3/config"
+
+- name: Install conky-i3bar
+  tags: install
+  copy:
+    src: "files/i3/conky-i3bar"
+    dest: "{{ gui_user.home_dir }}/.config/i3/conky-i3bar"
+    mode: 0700
+
+- name: Install conkyrc
+  tags: install
+  copy:
+    src: "files/i3/conkyrc"
+    dest: "{{ gui_user.home_dir }}/.config/i3/conkyrc"
+
+- name: Install i3bar.lua
+  tags: install
+  template:
+    src: "templates/i3bar.j2"
+    dest: "{{ gui_user.home_dir }}/.config/i3/i3bar.lua"
+
+- name: Install i3-conky-modules
+  tags: install
+  copy:
+    src: "files/i3/i3-conky-modules"
+    dest: "{{ gui_user.home_dir }}/.config/i3/"
+
+- name: Install i3 startup
+  tags: autostart,install
+  copy:
+    src: "files/i3/startup"
+    dest: "{{ gui_user.home_dir }}/.config/i3/startup"
+    mode: 0700

@@ -1,0 +1,9 @@
+---
+
+# For use with terraform/packer when building base images
+
+users: 
+  - name: "vagrant"
+    home_dir: "/home/vagrant"
+  - name: "root"
+    home_dir: "/root"

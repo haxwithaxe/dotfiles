@@ -1,0 +1,2 @@
+# Set desktop background to grey
+xsetroot -solid darkgrey

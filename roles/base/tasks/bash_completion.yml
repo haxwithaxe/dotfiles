@@ -1,0 +1,22 @@
+---
+
+- name: Install .bash_completion
+  tags: install
+  copy:
+    src: "files/bash_completion/bash_completion"
+    dest: "{{ user.home_dir }}/.bash_completion"
+
+- name: Install bash completion files
+  tags: install
+  copy:
+    src: "files/bash_completion/{{ item }}"
+    dest: "{{ user.home_dir }}/.bash_completion.d/{{ item }}"
+  with_items:
+    - python_argcomplete_alias
+
+- name: Install host specific bash completion files
+  tags: host_specific,install
+  copy:
+    src: "files/bash_completion/{{ item }}"
+    dest: "{{ user.home_dir }}/.bash_completion.d/{{ item }}"
+  with_items: "{{ host_bash_completion_files | default([]) }}"

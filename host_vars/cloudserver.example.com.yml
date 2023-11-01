@@ -1,0 +1,9 @@
+---
+
+device_type: "server"
+
+users: 
+  - name: "ubuntu"
+    home_dir: "/home/ubuntu"
+  - name: "root"
+    home_dir: "/root"

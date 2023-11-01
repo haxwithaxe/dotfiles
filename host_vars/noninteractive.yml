@@ -1,0 +1,13 @@
+---
+
+users: 
+  - name: "hax"
+    home_dir: "/home/hax"
+  - name: "root"
+    home_dir: "/root"
+
+host_bashrc_files:
+  - netshoot
+
+host_bash_alias_files:
+  - docker

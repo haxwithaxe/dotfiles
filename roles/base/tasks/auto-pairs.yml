@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin auto-pairs
+  tags: install
+  git:
+    repo: "https://github.com/jiangmiao/auto-pairs.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/auto-pairs"
+    force: "{{ force_vim_plugins }}"

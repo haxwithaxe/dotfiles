@@ -1,0 +1,8 @@
+---
+
+- name: nodm_enable_start
+  become_user: root # role is run as non-root user
+  service:
+    name: nodm.service
+    enabled: yes
+    state: started

@@ -1,0 +1,36 @@
+---
+
+- name: Install base bashrc
+  tags: install
+  copy:
+    src: "files/bashrc/bashrc"
+    dest: "{{ user.home_dir }}/.bashrc"
+
+- name: Install base bashrc files
+  tags: install
+  copy:
+    src: "files/bashrc/{{ item }}"
+    dest: "{{ user.home_dir }}/.bashrc.d/{{ item }}"
+  with_items:
+    - editor
+    - venv-activate
+
+- name: Set DEVICE_TYPE
+  tags: bashrc
+  copy:
+    content: "DEVICE_TYPE={{ device_type | default('random') }}"
+    dest: "{{ user.home_dir }}/.bashrc.d/device_type_var"
+
+- name: Install host specific bashrc files
+  tags: host_specific,install
+  copy:
+    src: "files/bashrc/{{ item }}"
+    dest: "{{ user.home_dir }}/.bashrc.d/{{ item }}"
+  with_items: "{{ host_bashrc_files | default([]) }}"
+
+- name: Install login notification
+  tags: alert,install
+  copy:
+    src: "files/bashrc/login-alert"
+    dest: "{{ user.home_dir }}/.bashrc.d/login-alert"
+  when: not (user.interactive | default("no") | bool)

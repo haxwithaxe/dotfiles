@@ -1,0 +1,34 @@
+---
+
+- name: Install flake8
+  community.general.pipx:
+    name: flake8
+    state: install
+    include_injected: yes
+
+- name: Inject flake8 plugins
+  community.general.pipx:
+    name: flake8
+    inject_packages:
+      - flake8-docstrings
+      - flake8-bugbear
+      - flake8-simplify
+    state: inject
+
+- name: Install pep257
+  community.general.pipx:
+    name: pep257
+    state: install
+
+- name: Configure vim plugin neomake
+  tags: install,syntax
+  git:
+    repo: "https://github.com/neomake/neomake.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/neomake"
+    force: yes
+
+- name: Add neomake config to .vimrc
+  tags: config,syntax
+  copy:
+    content: "files/neomake.vim"
+    dest: "{{ user.home_dir }}/.vim/include/neomake.vim"

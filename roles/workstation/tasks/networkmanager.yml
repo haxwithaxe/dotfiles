@@ -1,0 +1,20 @@
+---
+
+
+- name: Install NetworkManager GUI
+  tags: install
+  become_user: root
+  package:
+    name:
+      - network-manager-gnome
+      - network-manager-openvpn-gnome
+    state: latest
+
+- name: Link autostart file
+  tags: autostart,install
+  file:
+    path: "{{ gui_user.home_dir }}/.config/autostart/nm-applet.desktop" 
+    src: "/usr/share/applications/nm-applet.desktop"
+    state: link
+    force: "{{ force_networkmanager }}"
+  when: use_nm_applet

@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin Dockerfile
+  tags: install
+  git:
+    repo: "https://github.com/ekalinin/Dockerfile.vim.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/Dockerfile.vim"
+    force: "{{ force_vim_plugins }}"

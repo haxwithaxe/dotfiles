@@ -1,0 +1,3 @@
+# This requires `ntfyr` and a ntfyr config in a default location.
+# It's run in the background to let slow TCP connections take their time.
+ntfyr -t alerts --timestamp '%message at %Y-%m-%d %H:%M' -m "Login for $(whoami) on $(hostname)" &

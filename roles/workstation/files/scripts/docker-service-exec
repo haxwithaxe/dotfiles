@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Run docker exec on service tasks on any host in a docker swarm.
+#
+# The first argument must be the service name all subsequent arguments are
+# passed to that service task.
+#
+# The script looks for a docker context named ``node.<node hostname>``. If it
+# doesn't exist the script will create a context by that name set to connect
+# over ssh with the current local user as the username and the node name as the
+# host. If the hostname belongs to the local node the ``default`` profile is
+# copied to the required name.
+#
+# To override the automatically created docker context replace the context with
+# an appropriately configured one with the same name.
+#
+# Author: haxwithaxe
+# Copyright: haxwithaxe 2023
+# License: GPLv3
+
+set -e
+
+SSH_PORT=${SSH_PORT:-22}
+REMOTE_USER=${REMOTE_USER:-$(whoami)}
+
+
+ensure_context() {
+	local node_host=$1
+	local user=${2:-$REMOTE_USER}
+	local ssh_port=${3:-$SSH_PORT}
+	if ! (docker context ls --format '{{ .Name }}' | grep -q node.$node_host); then
+		if [[ "$(hostname --short)" == "$node_host" ]] || [[ "$(hostname --fqdn)" == "$node_host" ]]; then
+			docker context create --from default node.$node_host
+		else
+			docker context create node.$node_host --docker "host=ssh://${user}@${node_host}:${ssh_port}"
+		fi
+	fi
+}
+
+main() {
+	local service_name=$1
+	shift
+	docker context use default >/dev/null 2>&1
+	local task_id=$(docker service ps --filter 'desired-state=running' $service_name -q)
+	local node_id=$(docker inspect --format '{{ .NodeID }}' $task_id)
+	local container_id=$(docker inspect --format '{{ .Status.ContainerStatus.ContainerID }}' $task_id)
+	local node_host=$(docker node inspect --format '{{ .Description.Hostname }}' $node_id)
+	ensure_context $node_host >/dev/null 2>&1
+	docker context use node.$node_host >/dev/null
+	local return_code=0
+	docker exec -it $container_id "$@" || return_code=$?
+	docker context use default >/dev/null 2>&1
+	exit $return_code
+}
+
+main "$@"

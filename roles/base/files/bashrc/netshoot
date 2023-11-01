@@ -1,0 +1,14 @@
+# Use netshoot on the container given as an argument
+
+__dummy_docker_container_completion() {
+  COMPREPLY=( $(compgen -W "$(docker container ls --format "{{.Names}}")" -- "${COMP_WORDS[COMP_CWORD]}") )
+  return 0
+}
+
+
+netshoot() {
+	docker run -it --net container:$1 nicolaka/netshoot
+}
+
+
+complete -F __dummy_docker_container_completion netshoot

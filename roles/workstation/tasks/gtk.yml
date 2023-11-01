@@ -1,0 +1,40 @@
+---
+
+- name: Install GTK theme
+  tags: install
+  become_user: root
+  package:
+    name:
+      - dconf-cli
+      - dbus
+      - gtk2-engines-oxygen
+      - python3-psutil
+      - materia-gtk-theme
+    state: latest
+
+- name: Ensure config directories exist
+  tags: install
+  file:
+    path: "{{ gui_user.home_dir }}/.config/{{ item }}"
+    state: directory
+  with_items:
+    - "gtk-2.0"
+    - "gtk-3.0"
+  
+- name: Install GTK2 theme config
+  tags: install
+  copy:
+    src: "files/gtk/gtk-2.0/gtkrc"
+    dest: "{{ gui_user.home_dir }}/.config/gtk-2.0/gtkrc"
+
+- name: Install GTK3 theme config
+  tags: install
+  copy:
+    src: "files/gtk/gtk-3.0/settings.ini"
+    dest: "{{ gui_user.home_dir }}/.config/gtk-3.0/settings.ini"
+
+- name: Set dark mode preference
+  tags: configure
+  dconf:
+    key: "/org/gnome/desktop/interface/gtk-application-prefer-dark-theme"
+    value: !!str true

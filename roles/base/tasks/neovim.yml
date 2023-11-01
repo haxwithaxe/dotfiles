@@ -1,0 +1,22 @@
+---
+
+- name: Ensure neovim config directory exists
+  tags: install
+  file:
+    path: "{{ user.home_dir }}/.config/nvim"
+    state: directory
+
+- name: Configure neovim
+  tags: install
+  copy:
+    src: "files/nvim/init.vim"
+    dest: "{{ user.home_dir }}/.config/nvim/init.vim"
+
+# Required for jedi-vim and other python plugins
+- name: Install pynvim
+  become: yes
+  become_user: root
+  tags: install,python
+  package:
+    name: python3-pynvim
+    state: latest

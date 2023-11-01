@@ -1,0 +1,22 @@
+#!/bin/bash
+# Copyright 2023 haxwithaxe
+# License: CC0
+
+# Launch firefox with a new separate profile in "private" mode.
+
+
+PROFILE_DIR=$(mktemp -d /tmp/firefox-anon.XXX)
+
+firefox --CreateProfile "$(basename $PROFILE_DIR) $PROFILE_DIR"
+firefox --profile $PROFILE_DIR \
+	--new-instance \
+	--private-window \
+	$*
+
+echo "Shredding $PROFILE_DIR ..."
+# Scrub the temporary profile files
+# If this fails the profile directory will still be removed
+find "$PROFILE_DIR" -type f -exec shred -ux {} \;
+# Remove the profile directory
+rm -rf "$PROFILE_DIR"
+echo "Done."

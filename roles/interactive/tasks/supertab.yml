@@ -1,0 +1,9 @@
+---
+
+- name: Configure vim plugin supertab
+  tags: install,syntax
+  git:
+    repo: "https://github.com/ervandew/supertab.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/supertab"
+    depth: 1
+    force: yes

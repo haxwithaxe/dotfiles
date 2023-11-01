@@ -1,0 +1,35 @@
+
+LIGHT_BLUE=39
+GOLDENROD=220
+LIGHT_GOLDENROD=215
+ORANGISH_RED=196
+ORANGE=208
+
+
+__psrc_prompt_command() {
+	case "$DEVICE_TYPE" in
+		workstation)
+			local user_color=$LIGHT_BLUE
+			local host_color=$LIGHT_BLUE
+			;;
+		interactive)
+			local user_color=$GOLDENROD
+			local host_color=$GOLDENROD
+			;;
+		*)
+			local user_color=$ORANGISH_RED
+			local host_color=$ORANGISH_RED
+			;;
+	esac
+	if [[ "$USER" == "root" ]]; then
+		user_color=$ORANGE
+	fi
+	local user_host=$(__user_host $user_color $host_color)
+	local dir_length=10
+	local venv_color=$LIGHT_GOLDENROD
+	local venv_length=10
+	local venv_label="$(__psrc_try __virtualenv_label $venv_color)"
+	__git_ps1 "${debian_chroot:+($debian_chroot)}${user_host}:\$(__psrc_small_pwd)" "${venv_label}\\\$ "
+}
+
+# vim: filetype=sh:

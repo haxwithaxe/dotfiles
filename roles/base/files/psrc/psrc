@@ -1,0 +1,63 @@
+# Default __prompt_command
+#
+# Allows PS1 alone to define the prompt.
+__prompt_command() {
+	return 0
+}
+
+if [ -n $BASH_VERSION ]; then
+	__psrc_helper_shorten() {
+		length="$1"
+		string="$2"
+		if [ ${#string} -gt $length ]; then
+			printf "${string:0:$((length-3))}..."
+		else
+			printf "$string"
+		fi
+	}
+	__psrc_helper_is_function(){
+		if [[ "$(type -t "$1")" == "function" ]]; then
+			return 0
+		fi
+		return 1
+	}
+else
+	__psrc_helper_shorten() {
+		length="$1"
+		string="$2"
+		if [ ${#string} -gt $length ]; then
+			printf "$(printf "$string" | cut -f 0-$((length-3)))..."
+		else
+			printf "$string"
+		fi
+	}
+	__psrc_helper_is_function(){
+		if ( type "$1" | grep -q " is a shell function" ); then
+			return 0
+		fi
+		return 1
+	}
+fi
+
+# Print nothing when the function isn't defined
+__psrc_try() {
+	local func=$1
+	shift
+	if __psrc_helper_is_function "$func"; then
+		$func $@
+	fi
+}
+
+if (ls ${HOME}/.psrc.d/[0-9][0-9]-* >/dev/null 2>&1); then
+	for psrc in ${HOME}/.psrc.d/[0-9][0-9]-*;do
+		source $psrc
+	done
+fi
+
+if [ -e ${HOME}/.psrc.d/conf ];then
+	source ${HOME}/.psrc.d/conf
+fi
+
+PROMPT_COMMAND='__psrc_prompt_command'
+
+# vim: set filetype=sh:

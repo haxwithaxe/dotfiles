@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if which duf >/dev/null; then
+	read -n 1 -p "Did you mean \`duf\`? " answer
+	case "$answer" in
+		n|N)
+			"$(which df)" "$@"
+			;;
+		*)
+			echo
+			exit 1
+			;;
+	esac
+else
+	 "$(which df)" "$@"
+fi

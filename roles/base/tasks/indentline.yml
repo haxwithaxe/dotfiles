@@ -1,0 +1,8 @@
+---
+
+- name: Configure vim plugin indentLine
+  tags: install
+  git:
+    repo: "https://github.com/Yggdroot/indentLine.git"
+    dest: "{{ user.home_dir }}/.vim/pack/vendor/start/indentLine"
+    force: "{{ force_vim_plugins }}"

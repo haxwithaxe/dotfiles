@@ -1,0 +1,6 @@
+#!/bin/bash
+
+dex -ae i3 &
+
+i3-msg workspace 1 >/dev/null 2>&1
+

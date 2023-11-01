@@ -1,0 +1,217 @@
+---
+
+- name: Install Debian specific packages
+  tags: install
+  become: yes
+  become_user: root
+  package:
+    name:
+      - chromium
+      - firefox-esr
+    state: latest
+  when: ansible_facts['distribution'] == 'Debian'
+
+- name: Install Ubuntu specific packages
+  tags: install
+  become: yes
+  become_user: root
+  package:
+    name:
+      - chromium-browser
+      - firefox
+    state: latest
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Install system packages
+  tags: install
+  become: yes
+  become_user: root
+  package:
+    name:
+      - adb
+      - autocutsel
+      - blueman
+      - calibre
+      - suckless-tools
+      - evince
+      - fastboot
+      - gimp
+      - gist
+      - inkscape
+      - keepass2
+      - lxterminal
+      - pavucontrol
+      - pipx
+      - python3-bs4
+      - python3-pip
+      - python3-lxml
+      - nodm
+      - redshift-gtk
+      - tox
+      - unifont
+      - vlc
+      - x11-utils
+    state: latest
+
+- name: Configure NoDM user
+  tags: install
+  become: yes
+  become_user: root
+  lineinfile:
+    regex: '^NODM_USER=.*'
+    line: "NODM_USER={{ gui_user.name }}"
+    path: "/etc/default/nodm"
+
+- name: Enable NoDM
+  tags: install
+  become: yes
+  become_user: root
+  lineinfile:
+    regex: '^NODM_ENABLED=.*'
+    line: "NODM_ENABLED=true"
+    path: "/etc/default/nodm"
+  notify:
+    - nodm_enable_start
+
+- name: Install python tools
+  tags: install,python
+  community.general.pipx:
+    name:
+    state: install
+  loop:
+    - "ansible"
+    - "flake8"
+    - "grip"
+    - "yt-dlp"
+
+- name: Ensure XDG directories exist
+  tags: arduino,scripts,install,tagit
+  file:
+    path: "{{ gui_user.home_dir }}/{{ item }}"
+    state: directory
+  with_items:
+    - ".local"
+    - ".local/bin"
+    - ".local/lib"
+    - ".local/opt"
+
+# Scripts
+- name: Insall custom scripts
+  tags: scripts,install
+  copy:
+    src: "files/scripts/{{ item  }}"
+    dest: "{{ gui_user.home_dir }}/.local/bin/{{ item }}"
+    mode: 0755
+  with_items:
+    - "docker-service-exec"
+    - "prettyjson"
+    - "prettyxml"
+    - "chrome-anon"
+    - "firefox-anon"
+    - "xsetlock"
+
+- name: Install custom libraries and helpers
+  tags: scripts,install
+  copy:
+    src: "files/scripts/{{ item  }}"
+    dest: "{{ gui_user.home_dir }}/.local/lib/{{ item }}"
+    mode:  0755
+  with_items:
+    - chrome-profile
+    - firefox-profile
+
+# Browser profiles
+- name: Install Chrome profile aliases
+  tags: scripts,install
+  file:
+    src: "{{ gui_user.home_dir }}/.local/lib/chrome-profile"
+    dest: "{{ gui_user.home_dir }}/.local/bin/chrome-{{ item }}"
+    state: link
+  loop: "{{ chrome.profiles | default(['default']) }}"
+
+- name: Install Firefox profile aliases
+  tags: scripts,install
+  file:
+    src: "{{ gui_user.home_dir }}/.local/lib/firefox-profile"
+    dest: "{{ gui_user.home_dir }}/.local/bin/firefox-{{ item }}"
+    state: link
+  loop: "{{ firefox.profiles | default(['default']) }}"
+
+# Arduino
+- name: Check if arduino IDE is installed already
+  tags: arduino,download,install
+  stat:
+    path: "{{ gui_user.home_dir }}/.local/bin/arduino"
+  register: _arduino_ide_file
+
+- name: Install arduino IDE
+  block:
+    - name: Download arduino IDE
+      tags: arduino,download
+      get_url:
+        url: "https://downloads.arduino.cc/arduino-{{ arduino_version }}-linux64.tar.xz"
+        dest: "/tmp/arduino-ide.tar.xz"
+
+    - name: Unpack arduino IDE
+      tags: arduino,install
+      unarchive:
+        src: "/tmp/arduino-ide.tar.xz"
+        dest: "{{ gui_user.home_dir }}/.local/opt/"
+        remote_src: yes
+
+    # The install.sh just adds desktop/menu launcher links so skipping it
+    - name: Install arduino IDE executable in PATH
+      tags: arduino,install
+      file:
+        src: "{{ gui_user.home_dir }}/.local/opt/arduino-{{ arduino_version }}/arduino"
+        path: "{{ gui_user.home_dir }}/.local/bin/arduino"
+        state: link
+
+  when: not _arduino_ide_file.stat.exists
+
+- name: Cleanup arduino IDE
+  tags: arduino,cleanup
+  file:
+    path: "/tmp/arduino-ide.tar.xz"
+    state: absent
+
+- name: Check if tagit is installed
+  tags: install,tagit
+  stat:
+    path: "{{ gui_user.home_dir }}/.local/bin/tagit"
+  register: _tagit_file
+
+# Tagit
+- name: Install tagit
+  block:
+    - name: Download tagit
+      tags: install,tagit
+      git:
+        repo: "https://github.com/haxwithaxe/tagit.git"
+        dest: "/tmp/tagit"
+
+    - name: Install tagit
+      tags: install,tagit
+      shell:
+        cmd: "PREFIX='{{ gui_user.home_dir }}/.local' make install"
+        chdir: "/tmp/tagit"
+
+  when: not _tagit_file.stat.exists
+
+- name: Remove tagit repo
+  tags: tagit,cleanup
+  file:
+    path: "/tmp/tagit"
+    state: absent
+
+- name: Ensure lxterminal config dir exists
+  tags: install
+  file:
+    path: "{{ gui_user.home_dir }}/.config/lxterminal"
+    state: directory
+
+- name: Install lxterminal config
+  tags: install
+  copy:
+    src: "files/lxterminal/lxterminal.conf"
+    dest: "{{ gui_user.home_dir }}/.config/lxterminal/lxterminal.conf"

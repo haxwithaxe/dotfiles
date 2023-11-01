@@ -1,0 +1,56 @@
+#!/bin/bash
+# Copyright 2014 haxwithaxe
+# License: CC0
+#
+# Launch firefox under the profile named after firefox-<profile name>
+# This script uses whatever comes after `firefox-` in the name it's called by
+# as the profile name.
+#
+# Usage:
+#   Symlink or copy this file to `firefox-myprofile` where `myprofile` is
+#   whatever name you want to give your profile.
+
+set -e
+
+script=$(basename $0)
+profile="${script/*-/}"
+app_exec="firefox"
+app="$app_exec-$profile"
+# Arguments for the initial launching of this profile of firefox
+first_args="-P $profile \
+	-new-instance \
+	--class=$(basename $app_exec)-$profile \
+	$*"
+# Arguments for subsequent launches
+subseq_args="-P $profile --class=$(basename $app_exec)-$profile $*"
+
+# Create pid file.
+pid_file=/tmp/run/$app/pid
+mkdir -p `dirname $pid_file`
+touch $pid_file
+
+# Test if this profile already has running instances.
+is_running(){
+	running=1
+	pid_list=''
+	while read p ;do
+		if ( ps $p | grep -qo $p ) ;then
+			running=0
+			pid_list=${pid_list}\n$p
+		fi
+	done < $pid_file
+	echo -ne $pid_list > $pid_file
+	return $running
+}
+
+if is_running ;then
+	echo Already running
+	$app_exec $subseq_args &
+	pid=$!
+	echo $pid >> $pid_file
+else
+	echo First instance
+	$app_exec $first_args &
+	pid=$!
+	echo $pid >> $pid_file
+fi
