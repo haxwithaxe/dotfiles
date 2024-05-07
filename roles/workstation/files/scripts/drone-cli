@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -e "$HOME/.config/drone-cli" ]; then
+	source "$HOME/.config/drone-cli"
+fi
+
+export DRONE_SERVER
+export DRONE_TOKEN
+
+drone $@

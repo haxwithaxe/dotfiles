@@ -27,3 +27,50 @@
   copy:
     src: files/black
     dest: "{{ user.home_dir }}/.config/black"
+
+- name: Install interactive .bash_aliases.d files
+  tags: bash,bash_aliases,install
+  copy:
+    src: "files/bash_aliases/{{ item }}"
+    dest: "{{ user.home_dir }}/.bash_aliases.d/{{ item }}"
+  with_items:
+    - df-to-duf
+
+- name: Install interactive .bashrc.d files
+  tags: bash,bashrc,install
+  copy:
+    src: "files/bashrc/{{ item }}"
+    dest: "{{ user.home_dir }}/.bashrc.d/{{ item }}"
+  with_items:
+    - liquidprompt
+
+- name: Ensure liquidpromt config directories exists
+  tags: liquidpromt,config,theme
+  ansible.builtin.file:
+    path: "{{ user.home_dir }}/.config/{{ item }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0750'
+  loop:
+    - liquidpromt
+    - liquidpromt/themes
+    - liquidpromt/themes/folded
+
+- name: Install liqidpromtrc
+  tags: liquidpromt,config
+  copy:
+    src: "files/liquidpromptrc"
+    dest: "{{ user.home_dir }}/.config/liquidpromptrc"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0640'
+
+- name: Install liquidpromt folded theme
+  tags: liquidpromt,config,theme
+  ansible.builtin.copy:
+    src: "files/liquidprompt/themes/folded/folded.theme"
+    dest: "{{ user.home_dir }}/.config/liquidprompt/themes/folded/folded.theme"
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+    mode: '0640'

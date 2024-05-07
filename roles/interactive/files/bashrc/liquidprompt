@@ -1,0 +1,10 @@
+# Only load liquidprompt in interactive shells, not from a script or from scp
+if (echo $- | grep -q i 2>/dev/null); then
+    if [ -e /usr/share/liquidprompt/liquidprompt ]; then
+        source /usr/share/liquidprompt/liquidprompt
+        lp_theme folded
+    elif [ -e $HOME/.local/opt/liquidprompt/liquidprompt ]; then
+        source $HOME/.local/opt/liquidprompt/liquidprompt
+        lp_theme folded
+    fi
+fi

@@ -1,3 +1,1 @@
-# This script isn't published yet. It needs a lot of documentation since the
-#   important part is compiling the word list.
 alias random-words=~/dev/random-words/random-words.py

@@ -1,0 +1,52 @@
+---
+
+device_type: "workstation"
+
+users: 
+  - name: "hax"
+    home_dir: "/home/hax"
+    interactive: yes
+  - name: "root"
+    home_dir: "/root"
+
+# Workstation vars
+
+i3_config:
+  displays:
+    PRIMARY: eDP1
+  workspaces:
+    1: PRIMARY
+    2: PRIMARY
+    3: PRIMARY
+
+i3bar:
+  wired_state:
+    - "enp1s0"
+  diskio:
+    - "vda"
+  disk_space:
+    - label: "/"
+      mount: "/"
+      low_perc: 10
+    - label: "h"
+      mount: "/home"
+      low_perc: 10
+  cpu_usage:
+    - label: "c0"
+      index: 0
+  cpu_temp:
+    - device: 0
+      subdevice: 1
+
+github_user: haxwithaxe
+qmk_git_branch: haxwithaxe
+
+host_xsessionrc_files:
+  - always-on
+  - disable-capslock
+  - i3.env
+  - merge-pastebuffers
+  - set-background
+  - xkb-fixes
+  - xmodmap
+  - xss-lock

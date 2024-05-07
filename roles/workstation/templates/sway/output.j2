@@ -1,0 +1,5 @@
+output {{ item.name }} resolution {{ item.resolution }} position {{ item.position }}
+{% for workspace in item.workspaces | default([]) %}
+workspace {{ workspace }} output {{ item.name }}
+{% endfor %}
+

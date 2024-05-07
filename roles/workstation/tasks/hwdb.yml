@@ -1,0 +1,13 @@
+---
+
+- name: Install HWDB files
+  become: yes
+  become_user: root
+  copy:
+    src: "files/{{ item }}"
+    dest: "/etc/udev/hwdb.d/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - 90-ELECOM_TrackBall_Mouse_EX-G_Pro_TrackBall_Mouse.hwdb

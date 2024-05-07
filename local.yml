@@ -1,5 +1,4 @@
 ---
-# Some hosts are pull only so this is a lightly modified main.yml just for them.
 
 - name: Prep
   hosts: all
@@ -34,10 +33,10 @@
   become: yes
   become_user: "{{ gui_user.name }}"
   roles:
-    - role: haxwithaxe.warpd
-      tags: [ workstation, warpd ]
     - role: "workstation"
       tags: [ workstation ]
+    - role: haxwithaxe.warpd
+      tags: [ workstation, warpd ]
 
 - name: Laptop role
   hosts: laptops

@@ -6,3 +6,10 @@
     name: nodm.service
     enabled: yes
     state: started
+
+- name: greetd_restart
+  become_user: root # role is run as non-root user
+  service:
+    name: greetd.service
+    enabled: yes
+    state: restarted

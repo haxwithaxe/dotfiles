@@ -1,0 +1,107 @@
+---
+
+- name: Install sway and associated packages
+  tags: install
+  become: yes
+  become_user: root
+  package:
+    name:
+      - greetd
+      - sway
+      - waybar
+      - swaylock
+      - swayidle
+    state: latest
+
+- name: Ensure sway config directories exist
+  tags: install
+  file:
+    path: "{{ gui_user.home_dir }}/.config/{{ item }}"
+    state: directory
+  loop:
+    - sway
+    - sway/config.d
+    - sway/config-inputs.d
+    - sway/config-outputs.d
+    - sway/config-vars.d
+
+- name: Install sway config
+  tags: install
+  copy:
+    src: "files/sway/config"
+    dest: "{{ gui_user.home_dir }}/.config/sway/config"
+
+- name: Install sway config.d files
+  tags: install
+  copy:
+    src: "files/sway/{{ item }}"
+    dest: "{{ gui_user.home_dir }}/.config/sway/config.d/{{ item }}"
+  loop: "{{ sway_default_config_files + (sway_config_files | default([])) | list }}"
+
+- name: Install sway input configs
+  tags: install
+  template:
+    src: "templates/sway/input.j2"
+    dest: "{{ gui_user.home_dir }}/.config/sway/config-inputs.d/{{ item.id }}"
+  loop: "{{ sway_config_inputs | list }}"
+
+- name: Install sway output configs
+  tags: install
+  template:
+    src: "templates/sway/output.j2"
+    dest: "{{ gui_user.home_dir }}/.config/sway/config-outputs.d/{{ item.name }}"
+  loop: "{{ sway_config_displays | list }}"
+
+- name: Install waybar config
+  tags: install
+  template:
+    src: "templates/waybar/config.j2"
+    dest: "{{ gui_user.home_dir }}/.config/waybar/config"
+
+- name: Install waybar style
+  tags: install
+  copy:
+    src: "files/waybar/style.css"
+    dest: "{{ gui_user.home_dir }}/.config/waybar/style.css"
+
+# For keyboard state on waybar
+- name: "Add {{ gui_user.name }} to input group"
+  tags: configure
+  become: yes
+  become_user: root
+  ansible.builtin.user:
+    name: "{{ gui_user.name }}"
+    groups: input
+    append: yes
+
+- name: Install sway-helper.sh
+  tags: install
+  become: yes
+  become_user: root
+  copy:
+    src: files/sway/sway-helper.sh
+    dest: /usr/local/sbin/sway-helper.sh
+    owner: root
+    group: root
+    mode: '0755'
+  notify: greetd_restart
+
+- name: Configure greetd to use sway-helper.sh
+  tags: configure
+  become: yes
+  become_user: root
+  lineinfile:
+    path: /etc/greetd/config.toml
+    regex: '^command *= *.*'
+    line: 'command = "/usr/local/sbin/sway-helper.sh"'
+  notify: greetd_restart
+
+- name: "Configure greetd to run as {{ gui_user.name }}"
+  tags: configure
+  become: yes
+  become_user: root
+  lineinfile:
+    path: /etc/greetd/config.toml
+    regex: '^user *= *.*'
+    line: "user = '{{ gui_user.name }}'"
+  notify: greetd_restart

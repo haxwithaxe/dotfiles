@@ -1,4 +1,3 @@
-# Use netshoot on the container given as an argument
 
 __dummy_docker_container_completion() {
   COMPREPLY=( $(compgen -W "$(docker container ls --format "{{.Names}}")" -- "${COMP_WORDS[COMP_CWORD]}") )

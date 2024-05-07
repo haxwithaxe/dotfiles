@@ -6,4 +6,5 @@
     name:
       - python3-pip
       - duf
+      - liquidprompt
     state: latest

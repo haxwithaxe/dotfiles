@@ -1,0 +1,22 @@
+_lp_folded_theme_activate() {
+    _lp_default_theme_activate
+}
+
+_lp_folded_theme_directory() {
+    _lp_default_theme_directory
+}
+
+_lp_folded_theme_prompt() {
+	echo in folded
+    _lp_default_theme_prompt_data
+	local venv="${LP_VENV}${LP_NODE_VENV}${LP_RUBY_VENV}"
+	local left="${LP_PS1_PREFIX}${LP_USER}${LP_HOST}${LP_PROXY}${LP_SHLVL}${venv}${LP_VCS}${LP_PERM}${LP_PWD}${LP_DIRSTACK}"
+	local right="${LP_DEV_ENV}${LP_JOBS}${LP_BATT}${LP_LOAD}${LP_TEMP}${LP_WIFI}${LP_TIME}"
+    local top=$(printf "%s%$(($COLUMNS-${#left}))s" "B$left" "C$right")
+    export LP_PS1="A${top}\nD\nE${LP_RUNTIME}${LP_ERR}${LP_MARK_PREFIX}${LP_COLOR_MARK}$${LP_MARK}${LP_PS1_POSTFIX}"
+	export PS1="$LP_PS1"
+	printf $LP_PS1
+
+    # Get the core sections without prompt escapes and make them into a title.
+    _lp_formatted_title "${LP_USER}${LP_HOST}${LP_MARK_PERM}${lp_path-}${LP_MARK_PREFIX}${LP_MARK}${LP_PS1_POSTFIX}"
+}

@@ -9,7 +9,6 @@ set encoding=utf-8
 set mouse-=a "disable mouse
 " Share the * register with the clipboard
 " http://vimcasts.org/episodes/accessing-the-system-clipboard-from-vim/
-" **This is currently broken in nvim**
 if has('unnamedplus')
 	set clipboard=unnamed,unnamedplus
 else

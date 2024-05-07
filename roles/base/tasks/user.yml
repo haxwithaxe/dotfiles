@@ -9,6 +9,7 @@
     - "{{ user.home_dir }}/.config"
     - "{{ user.home_dir }}/.local"
     - "{{ user.home_dir }}/.psrc.d"
+    - "{{ user.home_dir }}/.profile.d"
     - "{{ user.home_dir }}/.bash_aliases.d"
     - "{{ user.home_dir }}/.bash_completion.d"
     - "{{ user.home_dir }}/.bashrc.d"

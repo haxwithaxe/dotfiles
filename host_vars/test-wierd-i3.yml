@@ -1,0 +1,50 @@
+---
+
+i3_config:
+  displays:
+    PRIMARY: eDP-1
+    SECONDARY: DP-2-2
+    TERTIARY: DP-2-1
+    HDMI: HDMI1
+    VGA: VGA1
+  workspaces:
+    1: PRIMARY
+    2: SECONDARY
+    3: TERTIARY
+    4: SECONDARY
+    5: TERTIARY
+    6: PRIMARY
+    7: PRIMARY
+    8: HDMI
+    9: VGA
+
+i3bar:
+  wired_state:
+    - "enp1s0"
+  diskio:
+    - "vda"
+  disk_space:
+    - label: "/"
+      mount: "/"
+      low_perc: 10
+    - label: "h"
+      mount: "/home"
+      low_perc: 10
+  cpu_usage:
+    - label: "c0"
+    - index: 0
+  cpu_temp:
+    - device: 0
+      subdevice: 1
+
+xsessionrc:
+  files:
+    - always-on
+    - disable-capslock
+    - hp-zr24w-resolution
+    - i3.env
+    - merge-pastebuffers
+    - set-background
+    - xkb-fixes
+    - xmodmap
+    - xss-lock

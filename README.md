@@ -59,6 +59,7 @@ Anything with a GUI that runs linux.
 
 Includes:
 * i3 settings
+* Sway settings
 * GTK and QT theming
 * QMK build environment
 * Desktop utilities
@@ -164,7 +165,7 @@ i3bar (using conky) settings:
 * `i3bar.wired_state` - A list of wired network interfaces to show stats for.
 
 
-Example:
+##### Example
 ```yaml
 ...
 i3bar:
@@ -200,7 +201,9 @@ i3_secrets:
 ```
 
 
-### host_vars Example
+### host_vars Examples
+
+#### Using X11
 ```yaml
 ---
 
@@ -277,6 +280,69 @@ xsessionrc:
     - xss-lock
 ```
 
+#### Using Wayland
+```yaml
+---
+
+use_x11: false
+device_type: "workstation"
+
+users: 
+  - name: "hax"
+    home_dir: "/home/hax"
+    interactive: yes
+  - name: "root"
+    home_dir: "/root"
+
+
+# Workstation vars
+
+gui_user:
+  name: "hax"
+  home_dir: "/home/hax"
+
+chrome:
+  profiles:
+    - default
+    - clean
+
+host_bash_aliases_files:
+  - docker
+  - pipx-global
+
+firefox:
+  profiles:
+    - default
+    - clean
+
+sway_config_displays:
+  - name: eDP-1
+    resolution: 1920x1080
+    position: 1920,0
+    workspaces: 
+      - 7
+      - 8
+      - 9
+  - name: HDMI-A-1
+    resolution: 1920x1200
+    position: 0,0
+    workspaces: 
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+
+waybar_temperature_thermal_zone: 10
+waybar_temperature_critical_temp: 120
+
+github_user: haxwithaxe
+qmk_git_branch: haxwithaxe
+
+use_networkmanager: yes
+use_nm_applet: yes
+```
 
 ## Laptop
 You'll never guess ...

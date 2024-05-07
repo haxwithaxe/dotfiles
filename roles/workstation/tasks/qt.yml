@@ -13,7 +13,7 @@
   tags: themes,install
   copy:
     content: "export QT_QPA_PLATFORMTHEME=qt5ct"
-    dest: "{{ gui_user.home_dir }}/.xsessionrc.d/qt5ct"
+    dest: "{{ gui_user.home_dir }}/.profile.d/qt5ct"
 
 - name: Install Qt style config directory
   tags: themes,install

@@ -1,0 +1,5 @@
+input "{{ item.id }}" {
+	{% for key, value in item.options %}
+	{{ key }} {{ value }}
+	{% endfor %}
+}

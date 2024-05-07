@@ -1,6 +1,7 @@
 ---
 
-# arduino_version: see group_vars
+arduino_version: "not set"
+use_dropbox: false
 
 use_networkmanager: no
 use_nm_applet: no
@@ -24,6 +25,7 @@ firefox:
     - default
     - clean
 
+# X11
 screen_lock: basic  # basic|advanced
 
 i3_config:
@@ -32,3 +34,21 @@ i3_config:
 
 i3bar: {}
 i3bar_critical_temp_default: 80
+
+use_x11: true
+
+# Wayland
+sway_default_config_files:
+  - 99-merge-paste-buffer.conf
+sway_config_displays: []
+sway_config_inputs: []
+
+waybar_backlight_device: false
+waybar_display_backlight: false
+waybar_display_battery: false
+waybar_idle_inhibitor_timeout: 300
+waybar_temperature_critical: 80
+waybar_temperature_hwmon_path_absolute: false
+waybar_temperature_hwmon_path_relative: false
+waybar_temperature_interval: false
+waybar_temperature_thermal_zone: false

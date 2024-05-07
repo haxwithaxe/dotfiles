@@ -29,7 +29,6 @@
   package:
     name:
       - adb
-      - autocutsel
       - blueman
       - calibre
       - suckless-tools
@@ -39,18 +38,39 @@
       - gist
       - inkscape
       - keepass2
-      - lxterminal
       - pavucontrol
       - pipx
       - python3-bs4
       - python3-pip
       - python3-lxml
-      - nodm
-      - redshift-gtk
       - tox
       - unifont
       - vlc
+      - unzip
+    state: latest
+
+- name: Install system packages (x11)
+  tags: install
+  become: yes
+  become_user: root
+  package:
+    name:
+      - autocutsel
+      - lxterminal
+      - nodm
+      - redshift-gtk
       - x11-utils
+    state: latest
+  when: use_x11
+
+- name: Install system packages (wayland)
+  tags: install
+  become: yes
+  become_user: root
+  package:
+    name:
+      # - clipboard merge tool
+      - greetd
     state: latest
 
 - name: Configure NoDM user
@@ -61,6 +81,7 @@
     regex: '^NODM_USER=.*'
     line: "NODM_USER={{ gui_user.name }}"
     path: "/etc/default/nodm"
+  when: use_x11
 
 - name: Enable NoDM
   tags: install
@@ -72,6 +93,7 @@
     path: "/etc/default/nodm"
   notify:
     - nodm_enable_start
+  when: use_x11
 
 - name: Install python tools
   tags: install,python
@@ -137,44 +159,6 @@
     state: link
   loop: "{{ firefox.profiles | default(['default']) }}"
 
-# Arduino
-- name: Check if arduino IDE is installed already
-  tags: arduino,download,install
-  stat:
-    path: "{{ gui_user.home_dir }}/.local/bin/arduino"
-  register: _arduino_ide_file
-
-- name: Install arduino IDE
-  block:
-    - name: Download arduino IDE
-      tags: arduino,download
-      get_url:
-        url: "https://downloads.arduino.cc/arduino-{{ arduino_version }}-linux64.tar.xz"
-        dest: "/tmp/arduino-ide.tar.xz"
-
-    - name: Unpack arduino IDE
-      tags: arduino,install
-      unarchive:
-        src: "/tmp/arduino-ide.tar.xz"
-        dest: "{{ gui_user.home_dir }}/.local/opt/"
-        remote_src: yes
-
-    # The install.sh just adds desktop/menu launcher links so skipping it
-    - name: Install arduino IDE executable in PATH
-      tags: arduino,install
-      file:
-        src: "{{ gui_user.home_dir }}/.local/opt/arduino-{{ arduino_version }}/arduino"
-        path: "{{ gui_user.home_dir }}/.local/bin/arduino"
-        state: link
-
-  when: not _arduino_ide_file.stat.exists
-
-- name: Cleanup arduino IDE
-  tags: arduino,cleanup
-  file:
-    path: "/tmp/arduino-ide.tar.xz"
-    state: absent
-
 - name: Check if tagit is installed
   tags: install,tagit
   stat:
@@ -209,9 +193,11 @@
   file:
     path: "{{ gui_user.home_dir }}/.config/lxterminal"
     state: directory
+  when: use_x11
 
 - name: Install lxterminal config
   tags: install
   copy:
     src: "files/lxterminal/lxterminal.conf"
     dest: "{{ gui_user.home_dir }}/.config/lxterminal/lxterminal.conf"
+  when: use_x11

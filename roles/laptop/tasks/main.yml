@@ -9,6 +9,7 @@
       - xserver-xorg-input-synaptics
       - xserver-xorg-input-libinput
     state: latest
+  when: use_x11
 
 - name: Insall xsessionrc.d scripts
   tags: touchpad,xsessionrc,install
@@ -17,6 +18,7 @@
     dest: "{{ gui_user.home_dir }}/.xsessionrc.d/{{ item }}"
   with_items:
     - synaptic-mouse
+  when: use_x11
 
 - name: Install laptop related bash aliases
   tags: bash,bash_aliases
@@ -25,3 +27,4 @@
     dest: "{{ gui_user.home_dir }}/.bash_aliases.d/{{ item }}"
   with_items:
     - battery
+  when: use_x11

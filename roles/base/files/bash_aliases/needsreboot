@@ -1,2 +1,1 @@
-# Check if a reboot is needed according to Debian/Ubuntu
 alias needsreboot='ls /var/run/reboot-required 1>/dev/null 2>&1 && echo yes, needs reboot || echo no, no reboot needed'

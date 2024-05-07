@@ -1,6 +1,3 @@
-# Fancy venv activation macro
-# It will use a venv given as an argument or find a venv at ``.venv`` or ``venv``
-# The `function` in the function declaration is required for some reason I can't figure out.
 function activate() {
 	if [[ -d "$1" ]]; then
 		echo "${1}/bin/activate"

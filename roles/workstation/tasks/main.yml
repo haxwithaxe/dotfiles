@@ -28,6 +28,13 @@
     apply:
       tags: [ software ]
 
+- name: Install HWDB files
+  tags: hwdb,install
+  include_tasks:
+    file: tasks/hwdb.yml
+    apply:
+      tags: [ hwdb ]
+
 - name: Install NetworkManager
   tags: networkmanager,install
   include_tasks:
@@ -36,12 +43,21 @@
       tags: [ networkmanager ]
   when: use_networkmanager
 
+- name: Install sway files
+  tags: sway,install
+  include_tasks:
+    file: "tasks/sway.yml"
+    apply:
+      tags: [ sway ]
+  when: not use_x11
+
 - name: Install i3 files
   tags: i3,install
   include_tasks:
     file: "tasks/i3.yml"
     apply:
       tags: [ i3 ]
+  when: use_x11
 
 - name: Install workstation related bash aliases
   tags: bash,bash_aliases
@@ -56,7 +72,8 @@
   copy:
     src: "files/bash_completion/{{ item }}"
     dest: "{{ gui_user.home_dir }}/.bash_completion.d/{{ item }}"
-  with_items: [] # Temporarily empty
+  with_items:
+    - drone
 
 - name: Configure vim plugin ansible
   tags: vim,plugins,neovim
@@ -71,6 +88,7 @@
     file: "tasks/xsession.yml"
     apply:
       tags: [ xsessionrc ]
+  when: use_x11
 
 - name: Install gnupg config
   tags: gnupg,install
@@ -98,7 +116,8 @@
   include_tasks:
     file: "tasks/dropbox.yml"
     apply:
-      tags: [ dropbox, software ]
+      tags: [  dropbox, software ]
+  when: use_dropbox or force_dropbox
 
 - name: Install QMK
   tags: qmk,install,software

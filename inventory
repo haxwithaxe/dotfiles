@@ -1,11 +1,14 @@
-noninteractive
-debian-12
+limey ansible_host=limey.landns.xyz
+einstein ansible_host=einstein.landns.xyz
+dumb ansible_host=dumb.landns.xyz
+snek ansible_host=snek.landns.xyz
+runner ansible_host=runner.landns.xyz  # semaphore runner
 
 [interactive]
-interactive
+orthrus ansible_host=orthrus.landns.xyz
 
 [workstations]
-workstation
 
 [laptops]
-laptop
+cricket ansible_host=192.168.10.203
+#lucky lucky pulls

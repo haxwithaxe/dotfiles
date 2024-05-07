@@ -5,13 +5,16 @@
   package:
     name:
       - bash-completion
+      - checkinstall
       - dnsutils
+      - git
       - neovim
       - net-tools
       - screen
       - python3-pip
       - pipx
       - python3-argcomplete
+      - foot-terminfo
     state: latest
 
 - name: Upgrade with pipx
@@ -27,7 +30,7 @@
     PIPX_HOME: /opt/pipx
     PIPX_BIN_DIR: /usr/local/bin
   loop:
-    - ntfyr
+    - 'git+https://github.com/haxwithaxe/ntfyr.git@466e28f035ffb491a73674dd1471ac79b74f91e9'
 
 - name: Ensure ntfyr config dir exists
   tags: alert
@@ -41,6 +44,18 @@
     src: files/ntfyr_config.ini
     dest: /etc/ntfyr/config.ini
     decrypt: yes
+    mode: '0640'
+    owner: root
+    group: root
+
+- name: Install ntfyr login alerts config
+  tags: alert
+  copy:
+    src: files/ntfyr_login_config.ini
+    dest: /etc/ntfyr/login.ini
+    mode: '0644'
+    owner: root
+    group: root
 
 - name: Remove argcomplete bash completion file if forcing reinstall
   tags: bash,bash_completion,python
